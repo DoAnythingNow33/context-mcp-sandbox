@@ -1,0 +1,34 @@
+# OS
+.DS_Store
+**/.DS_Store
+
+# Telegram bot runtime
+.telegram/state.json
+.telegram/bot.log
+.telegram/__pycache__/
+
+# Python
+__pycache__/
+*.pyc
+
+# Obsidian workspace (keep config, ignore local UI state)
+.obsidian/workspace*
+.obsidian/cache
+
+# Loose images / scratch
+IMG_*.jpeg
+IMG_*.png
+*.tmp
+
+# Excalidraw exports/scratch
+Excalidraw/
+
+# Google Drive
+.tmp.driveupload/
+.tmp.drivedownload/
+
+# macOS custom folder icons (Icon\r files — these corrupted .git refs once already)
+Icon?
+
+# Claude Code personal overrides (bypass permissions, local-only allow rules)
+.claude/settings.local.json

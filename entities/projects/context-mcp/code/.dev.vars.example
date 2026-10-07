@@ -1,0 +1,3 @@
+DEV_AUTH=1
+GITHUB_TOKEN=github_pat_...
+TENANTS='[{"id": "dev", "plan": "pilot", "name": "Dev sandbox", "hostname": "localhost", "repo": {"owner": "OWNER", "repo": "context-mcp-sandbox", "branch": "main"}, "mapFile": "CLAUDE.md", "orientationFiles": ["_digest.md"], "flagsFile": "_flags.md", "promptDirs": [".claude/commands", ".claude/skills"], "members": [{"email": "dan@example.com", "name": "Dan", "read": ["**"], "deny": [], "write": "create", "writePaths": ["**"]}]}]'

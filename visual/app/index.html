@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dan — Command Centre</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --surface:   #111111;
+      --surface2:  #161616;
+      --border:    #1e1e1e;
+      --border2:   #2a2a2a;
+      --orange:    #f97316;
+      --orange-dim: #7c3a0e;
+      --blue:      #3b82f6;
+      --green:     #22c55e;
+      --yellow:    #eab308;
+      --red:       #ef4444;
+      --text:      #f0f0f0;
+      --text2:     #888;
+      --text3:     #444;
+      --radius:    12px;
+      --radius-lg: 20px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .dashboard {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #f97316, #fb923c, #fde68a);
+    }
+    .header-left .greeting {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+    .header-left .subtitle {
+      color: var(--text2);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .header-right {
+      text-align: right;
+    }
+    .header-right .date {
+      font-size: 13px;
+      color: var(--text2);
+    }
+    .header-right .week {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+    .deadline-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(249,115,22,0.1);
+      border: 1px solid rgba(249,115,22,0.25);
+      color: var(--orange);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 8px;
+    }
+    .deadline-pill .dot {
+      width: 5px; height: 5px;
+      background: var(--orange);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ── Daily Focus ─────────────────────────── */
+    .focus-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .focus-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+    }
+    .focus-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
+    .focus-day {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+    .focus-week-label {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .focus-north-star {
+      font-size: 13px;
+      color: var(--text2);
+      font-style: italic;
+      margin-bottom: 20px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-left: 2px solid #6366f1;
+      border-radius: 0 6px 6px 0;
+      line-height: 1.5;
+    }
+    .focus-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 760px) {
+      .focus-cols { grid-template-columns: 1fr; }
+    }
+    .focus-col-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .focus-task {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 7px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .focus-task-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+      background: var(--blue);
+    }
+    .focus-task.done-task .focus-task-dot { background: var(--green); }
+    .focus-task.done-task .focus-task-text {
+      color: var(--text3);
+      text-decoration: line-through;
+    }
+    .focus-task-text { color: var(--text); }
+    .focus-doing-tag {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--orange);
+      background: rgba(249,115,22,0.08);
+      border: 1px solid rgba(249,115,22,0.2);
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-top: 2px;
+    }
+    .focus-empty {
+      font-size: 12px;
+      color: var(--text3);
+      font-style: italic;
+    }
+    .focus-offline {
+      font-size: 12px;
+      color: var(--text3);
+      padding: 8px 0;
+    }
+
+    /* ── Runway ──────────────────────────────── */
+    .runway {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+    }
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 16px;
+    }
+    .runway-months {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .month-chip {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+    }
+    .month-chip .label {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .month-chip .amount {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 4px;
+      letter-spacing: -0.5px;
+    }
+    .month-chip .amount.dim { color: var(--text2); }
+    .month-chip .amount.active { color: var(--orange); }
+    .month-chip .target {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+    .runway-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f97316, #fb923c);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+    .runway-summary {
+      font-size: 12px;
+      color: var(--text2);
+      white-space: nowrap;
+    }
+    .runway-summary strong { color: var(--text); }
+
+    /* ── Two-column ──────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+    }
+
+    /* This Week */
+    .north-star {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .week-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .week-item:last-child { border-bottom: none; }
+    .week-item .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .dot-done    { background: var(--green); }
+    .dot-active  { background: var(--orange); }
+    .dot-pending { background: var(--border2); }
+    .dot-waiting { background: var(--yellow); }
+    .week-item .item-text { flex: 1; }
+    .week-item .item-text.done { color: var(--text3); text-decoration: line-through; }
+    .week-item .tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .tag-client  { background: rgba(59,130,246,0.12); color: #60a5fa; }
+    .tag-content { background: rgba(168,85,247,0.12); color: #c084fc; }
+    .tag-outreach{ background: rgba(34,197,94,0.12);  color: #4ade80; }
+    .tag-done    { background: rgba(34,197,94,0.08);  color: #555; }
+
+    /* Open Actions */
+    .actions-count {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .actions-sub {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+    .action-row:last-child { border-bottom: none; }
+    .action-row .owner {
+      font-size: 10px;
+      color: var(--text3);
+      background: var(--surface2);
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .action-row .action-text { flex: 1; color: var(--text2); }
+
+    /* ── Clients ─────────────────────────────── */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .client-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .client-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+    .client-card.status-active::before  { background: var(--orange); }
+    .client-card.status-waiting::before { background: var(--yellow); }
+    .client-card.status-done::before    { background: var(--green); }
+    .client-card.status-watch::before   { background: var(--blue); }
+
+    .client-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .client-state {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .client-next {
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .client-next span {
+      color: var(--text2);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .badge-active  { background: rgba(249,115,22,0.1);  color: var(--orange); }
+    .badge-waiting { background: rgba(234,179,8,0.1);   color: var(--yellow); }
+    .badge-done    { background: rgba(34,197,94,0.1);   color: var(--green); }
+    .badge-watch   { background: rgba(59,130,246,0.1);  color: var(--blue); }
+
+    /* ── Launchers ───────────────────────────── */
+    .launchers {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+    }
+    .launcher-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .launcher-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 14px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+      position: relative;
+    }
+    .launcher-btn:hover {
+      border-color: var(--orange);
+      background: rgba(249,115,22,0.05);
+    }
+    .launcher-btn:active { transform: scale(0.98); }
+    .launcher-btn .cmd {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      margin-bottom: 4px;
+    }
+    .launcher-btn .desc {
+      font-size: 11px;
+      color: var(--text3);
+      line-height: 1.3;
+    }
+    .copy-hint {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+    .copy-hint.show { opacity: 1; }
+
+    /* ── Nav tabs (future pages) ─────────────── */
+    .nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .nav-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text3);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .nav-tab.active {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .nav-tab:not(.active):hover {
+      color: var(--text2);
+    }
+
+    /* ── Util ────────────────────────────────── */
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    /* ── Kanban ─────────────────────────────── */
+    .kanban-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+    }
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .kanban-col {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 120px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .kanban-col.drag-over {
+      border-color: var(--orange);
+      background: rgba(249,115,22,0.05);
+    }
+    .kanban-col-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .kanban-col-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-backlog    { background: var(--border2); }
+    .dot-doing      { background: var(--orange); }
+    .dot-done2      { background: var(--green); }
+    .dot-cancelled  { background: var(--text3); }
+    .kanban-col-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text2);
+    }
+    .kanban-col-count {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--text3);
+      background: var(--border);
+      padding: 1px 7px;
+      border-radius: 20px;
+    }
+    .kanban-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      margin-bottom: 7px;
+      cursor: grab;
+      transition: border-color 0.15s, opacity 0.15s, transform 0.1s;
+      user-select: none;
+    }
+    .kanban-item:last-child { margin-bottom: 0; }
+    .kanban-item:hover {
+      border-color: var(--border2);
+    }
+    .kanban-item.dragging {
+      opacity: 0.4;
+      cursor: grabbing;
+      transform: scale(0.97);
+    }
+    .kanban-item-title {
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .kanban-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .kanban-item-owner {
+      font-size: 10px;
+      color: var(--text3);
+      background: var(--surface2);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .kanban-item-due {
+      font-size: 10px;
+      color: var(--text3);
+    }
+    .kanban-item-due.overdue {
+      color: var(--red);
+      font-weight: 600;
+    }
+    .kanban-item-cancelled { opacity: 0.5; }
+    .kanban-item-cancelled .kanban-item-title { text-decoration: line-through; }
+    .kanban-empty {
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+      padding: 16px 0 8px;
+      font-style: italic;
+    }
+    /* ── Weekly Planner ──────────────────────── */
+    .week-planner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-top: 16px;
+    }
+    .week-planner-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .week-day-col {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0;
+      min-height: 180px;
+      transition: border-color 0.15s;
+    }
+    .week-day-col.drag-over {
+      border-color: var(--blue);
+      background: rgba(59,130,246,0.04);
+    }
+    .week-day-col.is-today {
+      border-color: rgba(59,130,246,0.4);
+    }
+    .week-day-header {
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .week-day-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text2);
+    }
+    .week-day-col.is-today .week-day-name { color: var(--blue); }
+    .week-day-date {
+      font-size: 10px;
+      color: var(--text3);
+    }
+    .week-day-items {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 120px;
+    }
+    .week-day-empty {
+      font-size: 11px;
+      color: var(--text3);
+      font-style: italic;
+      padding: 8px 4px;
+      text-align: center;
+    }
+    .week-task {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 9px;
+      font-size: 12px;
+      line-height: 1.4;
+      cursor: grab;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      position: relative;
+    }
+    .week-task:hover { border-color: var(--border2); }
+    .week-task.dragging { opacity: 0.4; }
+    .week-task-text { flex: 1; color: var(--text); }
+    .week-task-remove {
+      font-size: 14px;
+      line-height: 1;
+      color: var(--text3);
+      cursor: pointer;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+    .week-task-remove:hover { color: var(--red); }
+    .week-task-col-tag {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+    .week-task-col-tag.tag-doing { color: var(--orange); }
+    .week-task.done { opacity: 0.5; }
+    .week-task.done .week-task-text { text-decoration: line-through; color: var(--text3); }
+    .week-task-check {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1.5px solid var(--border2);
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .week-task-check:hover { border-color: var(--green); }
+    .week-task-check.checked { background: var(--green); border-color: var(--green); }
+    .week-task-check.checked::after {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 5px;
+      border-left: 1.5px solid #fff;
+      border-bottom: 1.5px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+
+    .kanban-offline-note {
+      font-size: 11px;
+      color: var(--text3);
+      text-align: center;
+      margin-top: 10px;
+      font-style: italic;
+    }
+    .kanban-offline-note code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: var(--surface2);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--orange);
+    }
+
+    /* ── Calendar ───────────────────────────── */
+    #page-calendar {
+      padding-top: 4px;
+    }
+    .cal-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cal-table {
+      border-collapse: collapse;
+      min-width: 100%;
+      table-layout: fixed;
+    }
+    .cal-table th,
+    .cal-table td {
+      border: 1px solid var(--border);
+      vertical-align: top;
+      padding: 0;
+    }
+    /* Month label column */
+    .cal-table .col-month {
+      width: 56px;
+      min-width: 56px;
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--bg);
+      text-align: center;
+      vertical-align: middle;
+    }
+    .cal-table thead .col-month {
+      background: var(--bg);
+    }
+    .month-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text2);
+      padding: 0 4px;
+    }
+    /* Day header cells */
+    .cal-table thead td {
+      width: 38px;
+      min-width: 38px;
+      text-align: center;
+      padding: 6px 2px 4px;
+      background: var(--bg);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border2);
+    }
+    /* Day cells */
+    .cal-cell {
+      width: 38px;
+      min-width: 38px;
+      height: 52px;
+      background: var(--surface);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .cal-cell:hover:not(.cal-dead):not(.cal-today) {
+      background: var(--surface2);
+    }
+    .cal-cell.cal-weekend {
+      background: var(--surface2);
+    }
+    .cal-cell.cal-today {
+      background: var(--orange);
+    }
+    .cal-cell.cal-dead {
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.02) 2px,
+        rgba(255,255,255,0.02) 4px
+      );
+      cursor: not-allowed;
+    }
+    .cal-cell-inner {
+      padding: 4px 4px 2px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .cal-day-num {
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--text2);
+    }
+    .cal-today .cal-day-num {
+      color: #000;
+      font-weight: 700;
+    }
+    .cal-day-dow {
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-top: 1px;
+      line-height: 1;
+    }
+    .cal-today .cal-day-dow {
+      color: rgba(0,0,0,0.6);
+    }
+    .cal-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      margin-top: auto;
+      padding-top: 3px;
+    }
+    .cal-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cal-dot.type-client    { background: var(--orange); }
+    .cal-dot.type-content   { background: var(--blue); }
+    .cal-dot.type-milestone { background: var(--yellow);
+                              border-radius: 1px;
+                              transform: rotate(45deg);
+                              width: 5px; height: 5px; }
+    .cal-dot.type-done      { background: var(--green); }
+    .cal-dot.type-urgent    { background: var(--red); }
+    /* Legend */
+    .cal-legend {
+      display: flex;
+      gap: 20px;
+      padding: 12px 0 4px;
+      font-size: 11px;
+      color: var(--text3);
+      flex-wrap: wrap;
+    }
+    .cal-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cal-legend-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cal-legend-dot.type-client    { background: var(--orange); }
+    .cal-legend-dot.type-content   { background: var(--blue); }
+    .cal-legend-dot.type-milestone { background: var(--yellow);
+                                     border-radius: 1px;
+                                     transform: rotate(45deg); }
+    .cal-legend-dot.type-done      { background: var(--green); }
+    .cal-legend-dot.type-urgent    { background: var(--red); }
+
+    /* ── Cal popover ─────────────────────────── */
+    #cal-popover {
+      position: fixed;
+      z-index: 1000;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 16px;
+      min-width: 240px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      display: none;
+    }
+    #cal-popover .pop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    #cal-popover .pop-date {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    #cal-popover .pop-close {
+      background: none;
+      border: none;
+      color: var(--text3);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    #cal-popover .pop-close:hover { color: var(--text); }
+    #cal-popover .pop-existing {
+      margin-bottom: 12px;
+    }
+    #cal-popover .pop-existing-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    #cal-popover .pop-existing-item:last-child { border-bottom: none; }
+    #cal-popover .pop-existing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    #cal-popover .pop-existing-label { flex: 1; }
+    #cal-popover .pop-existing-ro {
+      font-size: 10px;
+      color: var(--text3);
+    }
+    #cal-popover .pop-delete-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    #cal-popover .pop-delete-btn:hover { color: var(--red); }
+    #cal-popover .pop-input {
+      width: 100%;
+      background: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    #cal-popover .pop-input:focus { border-color: var(--orange); }
+    #cal-popover .pop-swatches {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    #cal-popover .pop-swatch {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      flex-shrink: 0;
+      transition: outline-offset 0.1s;
+    }
+    #cal-popover .pop-swatch.selected {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+    #cal-popover .pop-save {
+      width: 100%;
+      background: var(--orange);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    #cal-popover .pop-save:hover { background: #fb923c; }
+    .cal-year-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+
+    /* ── CRM pipeline ───────────────────────── */
+    .crm-stats {
+      display: flex;
+      gap: 24px;
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .crm-stats strong { color: var(--text); }
+    .crm-board {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+    .crm-col {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 160px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .crm-col.drag-over {
+      border-color: var(--orange);
+      background: rgba(249,115,22,0.05);
+    }
+    .crm-col-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-new         { background: var(--border2); }
+    .dot-contacted   { background: var(--blue); }
+    .dot-replied     { background: var(--yellow); }
+    .dot-call-booked { background: var(--orange); }
+    .dot-won         { background: var(--green); }
+    .dot-dead        { background: var(--red); }
+    .crm-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      margin-bottom: 7px;
+      cursor: grab;
+      transition: border-color 0.15s, opacity 0.15s, transform 0.1s;
+      user-select: none;
+    }
+    .crm-item:last-child { margin-bottom: 0; }
+    .crm-item:hover { border-color: var(--border2); }
+    .crm-item.dragging { opacity: 0.4; cursor: grabbing; transform: scale(0.97); }
+    .crm-item-company {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .crm-item-sub {
+      font-size: 10.5px;
+      color: var(--text3);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .crm-item-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .crm-pill {
+      font-size: 9.5px;
+      padding: 1px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .pill-fit      { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+    .pill-fit.hot  { background: rgba(249,115,22,0.12); color: var(--orange); border-color: rgba(249,115,22,0.25); }
+    .pill-linkedin { background: rgba(59,130,246,0.12); color: #60a5fa; }
+    .pill-call     { background: rgba(234,179,8,0.12); color: var(--yellow); }
+    .pill-email    { background: rgba(168,85,247,0.12); color: #c084fc; }
+    .pill-stale    { background: rgba(239,68,68,0.1); color: var(--red); }
+    .crm-item-detail {
+      margin-top: 9px;
+      border-top: 1px solid var(--border);
+      padding-top: 9px;
+      font-size: 11px;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+    .crm-detail-label {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin: 7px 0 2px;
+    }
+    .crm-detail-label:first-child { margin-top: 0; }
+    .crm-opening {
+      font-style: italic;
+      color: #fdba74;
+      background: rgba(249,115,22,0.06);
+      border-left: 2px solid rgba(249,115,22,0.3);
+      padding: 6px 9px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- Nav -->
+  <div class="nav">
+    <div class="nav-tab active" onclick="showTab('home', event)">Home</div>
+    <div class="nav-tab" onclick="showTab('actions', event)">Actions</div>
+    <div class="nav-tab" onclick="showTab('clients', event)">Clients</div>
+    <div class="nav-tab" onclick="showTab('content', event)">Content</div>
+    <div class="nav-tab" onclick="showTab('calendar', event)">Calendar</div>
+    <div class="nav-tab" onclick="showTab('crm', event)">CRM</div>
+  </div>
+
+  <!-- ── Home page ── -->
+  <div class="page" id="page-home">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="greeting">Good morning, Dan.</div>
+      <div class="subtitle">DoAnythingNow · Command Centre</div>
+      <div class="deadline-pill">
+        <span class="dot"></span>
+        12 weeks to baby · Build the runway now
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="date" id="live-date">Mon 8 Jun 2026</div>
+      <div class="week">WC 02/06/26 · Week 23</div>
+    </div>
+  </div>
+
+  <!-- Runway -->
+  <!-- Daily Focus -->
+  <div class="focus-card" id="focus-card">
+    <div class="focus-header">
+      <div class="focus-day" id="focus-day">Loading…</div>
+      <div class="focus-week-label" id="focus-week-label"></div>
+    </div>
+    <div class="focus-north-star" id="focus-north-star" style="display:none"></div>
+    <div class="focus-cols" id="focus-cols">
+      <div>
+        <div class="focus-col-label">Today's Plan</div>
+        <div id="focus-today-tasks"><div class="focus-empty">—</div></div>
+      </div>
+      <div>
+        <div class="focus-col-label">In Progress</div>
+        <div id="focus-doing"><div class="focus-empty">—</div></div>
+      </div>
+      <div>
+        <div class="focus-col-label">Carry Forward</div>
+        <div id="focus-carry"><div class="focus-empty">—</div></div>
+      </div>
+    </div>
+    <div id="focus-offline" class="focus-offline" style="display:none">
+      Run <code>python visual/server.py</code> to load the daily focus report.
+    </div>
+  </div>
+
+  <div class="runway">
+    <div class="section-label">Revenue Runway — Target £12,000 by August</div>
+    <div class="runway-months">
+      <div class="month-chip">
+        <div class="label">April</div>
+        <div class="amount dim">£400</div>
+      </div>
+      <div class="month-chip">
+        <div class="label">May</div>
+        <div class="amount dim">£1,230</div>
+      </div>
+      <div class="month-chip">
+        <div class="label">June</div>
+        <div class="amount active">—</div>
+        <div class="target">Target £4–5k</div>
+      </div>
+      <div class="month-chip">
+        <div class="label">July</div>
+        <div class="amount dim" style="color: var(--text3)">—</div>
+        <div class="target">Needed: £4k+</div>
+      </div>
+      <div class="month-chip">
+        <div class="label">August</div>
+        <div class="amount dim" style="color: var(--text3)">—</div>
+        <div class="target">Baby end Aug</div>
+      </div>
+    </div>
+    <div class="runway-bar-row">
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 13.6%"></div>
+      </div>
+      <div class="runway-summary"><strong>£1,630</strong> of <strong>£12,000</strong> — 13.6% · £10,370 to go</div>
+    </div>
+  </div>
+
+  <!-- This Week + Actions -->
+  <div class="two-col">
+
+    <div class="card">
+      <div class="flex-between">
+        <div class="section-label" style="margin-bottom:0">This Week — WC 2 Jun</div>
+      </div>
+      <div class="north-star">
+        "Cold outreach running daily, Disha session done with full prep, Jamie final session delivered."
+      </div>
+
+      <div class="week-item">
+        <div class="status-dot dot-done"></div>
+        <div class="item-text done">Growify Disha — Session 1 (Wed 3 Jun)</div>
+        <div class="tag tag-done">Done</div>
+      </div>
+      <div class="week-item">
+        <div class="status-dot dot-done"></div>
+        <div class="item-text done">Jamie — Final session (Fri 5 Jun)</div>
+        <div class="tag tag-done">Done</div>
+      </div>
+      <div class="week-item">
+        <div class="status-dot dot-done"></div>
+        <div class="item-text done">Skool group call — Sun 7 Jun 4pm</div>
+        <div class="tag tag-done">Done</div>
+      </div>
+      <div class="week-item">
+        <div class="status-dot dot-active"></div>
+        <div class="item-text">100x100 — 9 outreach approaches this week</div>
+        <div class="tag tag-outreach">Outreach</div>
+      </div>
+      <div class="week-item">
+        <div class="status-dot dot-active"></div>
+        <div class="item-text">Content — 3 pieces (TM ep, CWD ep, viral clip)</div>
+        <div class="tag tag-content">Content</div>
+      </div>
+      <div class="week-item">
+        <div class="status-dot dot-waiting"></div>
+        <div class="item-text">Shereen — waiting on assets + payment</div>
+        <div class="tag tag-client">Client</div>
+      </div>
+      <div class="week-item">
+        <div class="status-dot dot-waiting"></div>
+        <div class="item-text">Sam — waiting on final meeting booking</div>
+        <div class="tag tag-client">Client</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="actions-count">7</div>
+      <div class="actions-sub">Open in Backlog</div>
+
+      <div class="action-row">
+        <div class="owner">Fadwa</div>
+        <div class="action-text">Send June session dates</div>
+      </div>
+      <div class="action-row">
+        <div class="owner">Fadwa</div>
+        <div class="action-text">Intro Daniel to Joseph (Circa Arts)</div>
+      </div>
+      <div class="action-row">
+        <div class="owner">Fadwa</div>
+        <div class="action-text">Send freeform ontology map</div>
+      </div>
+      <div class="action-row">
+        <div class="owner">Fadwa</div>
+        <div class="action-text">Send white paper</div>
+      </div>
+      <div class="action-row">
+        <div class="owner">Shift</div>
+        <div class="action-text">Promote group call on community</div>
+      </div>
+      <div class="action-row">
+        <div class="owner">Dan</div>
+        <div class="action-text">Post Skool free community offer</div>
+      </div>
+      <div class="action-row">
+        <div class="owner">Circa Arts</div>
+        <div class="action-text">Joseph intro followup</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Clients -->
+  <div class="card">
+    <div class="section-label">Clients &amp; Entities</div>
+    <div class="clients-grid">
+
+      <div class="client-card status-active">
+        <div class="status-badge badge-active">Active</div>
+        <div class="client-name">Growify / Disha</div>
+        <div class="client-state">6-session ontology build. Session 1 done 3 Jun. 5 remaining through 21 Jun. 50% advance payment incoming.</div>
+        <div class="client-next">Next: <span>Session 2 — confirm date</span></div>
+      </div>
+
+      <div class="client-card status-active">
+        <div class="status-badge badge-active">Active</div>
+        <div class="client-name">Fadwa</div>
+        <div class="client-state">Coaching client. Session 5 done. Working on devotion reframe and creative block. 4 open actions.</div>
+        <div class="client-next">Next: <span>Send June session dates</span></div>
+      </div>
+
+      <div class="client-card status-waiting">
+        <div class="status-badge badge-waiting">Waiting</div>
+        <div class="client-name">Shereen / Bubble Balloon</div>
+        <div class="client-state">£250 / 5hr web dev. Converted 21 May. No work started — blocked on assets + payment.</div>
+        <div class="client-next">Next: <span>Chase assets + payment to unblock</span></div>
+      </div>
+
+      <div class="client-card status-waiting">
+        <div class="status-badge badge-waiting">Waiting</div>
+        <div class="client-name">Sam / Explorers Club</div>
+        <div class="client-state">Notion hub delivered. Final meeting to close out + collect remaining invoice balance.</div>
+        <div class="client-next">Next: <span>Waiting on Sam to book final meeting</span></div>
+      </div>
+
+      <div class="client-card status-done">
+        <div class="status-badge badge-done">Wrapping</div>
+        <div class="client-name">Jamie Cameron</div>
+        <div class="client-state">4-session BizDev deal at £150/session. Final session done Fri 5 Jun. Obsidian + content engine delivered.</div>
+        <div class="client-next">Next: <span>Transition to company deal conversation</span></div>
+      </div>
+
+      <div class="client-card status-watch">
+        <div class="status-badge badge-watch">Equity</div>
+        <div class="client-name">Santiago / Bonita</div>
+        <div class="client-state">Equity-for-profitability deal. Obsidian system delivered. Instagram strategy and brand consulting arm in progress.</div>
+        <div class="client-next">Next: <span>Instagram content series + first 3 brand decks</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Launchers -->
+  <div class="launchers">
+    <div class="section-label">Launch a Workflow</div>
+    <div class="launcher-grid">
+
+      <div class="launcher-btn" onclick="copyCmd('/dpl', this)">
+        <div class="copy-hint">Copied!</div>
+        <div class="cmd">/dpl</div>
+        <div class="desc">Daily capture &amp; coaching session</div>
+      </div>
+
+      <div class="launcher-btn" onclick="copyCmd('/meeting', this)">
+        <div class="copy-hint">Copied!</div>
+        <div class="cmd">/meeting</div>
+        <div class="desc">Paste transcript → meeting file + IP + actions</div>
+      </div>
+
+      <div class="launcher-btn" onclick="copyCmd('/weekly-review', this)">
+        <div class="copy-hint">Copied!</div>
+        <div class="cmd">/weekly-review</div>
+        <div class="desc">Sunday review + next week plan</div>
+      </div>
+
+      <div class="launcher-btn" onclick="copyCmd('/written-content', this)">
+        <div class="copy-hint">Copied!</div>
+        <div class="cmd">/written-content</div>
+        <div class="desc">IP → post ideas → LinkedIn + X drafts</div>
+      </div>
+
+      <div class="launcher-btn" onclick="copyCmd('/wrap', this)">
+        <div class="copy-hint">Copied!</div>
+        <div class="cmd">/wrap</div>
+        <div class="desc">Close session — update all context files</div>
+      </div>
+
+    </div>
+  </div><!-- /launchers -->
+
+  </div><!-- /page-home -->
+
+  <!-- ── Actions page ── -->
+  <div class="page" id="page-actions" style="display:none">
+
+    <!-- Kanban board -->
+    <div class="kanban-card" id="kanban-section">
+      <div class="flex-between">
+        <div class="section-label" style="margin-bottom:0">Actions Board</div>
+      </div>
+      <div class="kanban-board" id="kanban-board">
+        <div class="kanban-col" id="col-backlog" data-col="backlog"
+             ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event)">
+          <div class="kanban-col-header">
+            <div class="kanban-col-dot dot-backlog"></div>
+            <div class="kanban-col-title">Backlog</div>
+            <div class="kanban-col-count" id="count-backlog">0</div>
+          </div>
+          <div class="kanban-col-items" id="items-backlog"></div>
+        </div>
+        <div class="kanban-col" id="col-doing" data-col="doing"
+             ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event)">
+          <div class="kanban-col-header">
+            <div class="kanban-col-dot dot-doing"></div>
+            <div class="kanban-col-title">Doing</div>
+            <div class="kanban-col-count" id="count-doing">0</div>
+          </div>
+          <div class="kanban-col-items" id="items-doing"></div>
+        </div>
+        <div class="kanban-col" id="col-done" data-col="done"
+             ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event)">
+          <div class="kanban-col-header">
+            <div class="kanban-col-dot dot-done2"></div>
+            <div class="kanban-col-title">Done</div>
+            <div class="kanban-col-count" id="count-done">0</div>
+          </div>
+          <div class="kanban-col-items" id="items-done"></div>
+        </div>
+        <div class="kanban-col" id="col-cancelled" data-col="cancelled"
+             ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event)">
+          <div class="kanban-col-header">
+            <div class="kanban-col-dot dot-cancelled"></div>
+            <div class="kanban-col-title">Cancelled</div>
+            <div class="kanban-col-count" id="count-cancelled">0</div>
+          </div>
+          <div class="kanban-col-items" id="items-cancelled"></div>
+        </div>
+      </div>
+      <div id="kanban-offline" class="kanban-offline-note" style="display:none">
+        To enable drag-and-drop, run <code>python visual/server.py</code> then reload.
+      </div>
+    </div>
+
+    <!-- Weekly planner -->
+    <div class="week-planner">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+        <div class="section-label" style="margin-bottom:0">This Week — Drag tasks into days</div>
+        <button id="plan-week-btn" onclick="planMyWeek()" style="
+          background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);
+          color:#818cf8;font-size:11px;font-weight:600;letter-spacing:0.08em;
+          text-transform:uppercase;padding:5px 14px;border-radius:20px;cursor:pointer;
+          transition:background 0.15s;
+        " onmouseover="this.style.background='rgba(99,102,241,0.22)'"
+           onmouseout="this.style.background='rgba(99,102,241,0.12)'">
+          Plan my week
+        </button>
+      </div>
+      <div class="week-planner-board" id="week-planner-board">
+        <div class="week-day-col" id="wday-monday"    data-day="monday"    ondragover="wdayDragOver(event)" ondragleave="wdayDragLeave(event)" ondrop="wdayDrop(event)">
+          <div class="week-day-header"><span class="week-day-name">Mon</span><span class="week-day-date" id="wdate-monday"></span></div>
+          <div class="week-day-items" id="witems-monday"></div>
+        </div>
+        <div class="week-day-col" id="wday-tuesday"   data-day="tuesday"   ondragover="wdayDragOver(event)" ondragleave="wdayDragLeave(event)" ondrop="wdayDrop(event)">
+          <div class="week-day-header"><span class="week-day-name">Tue</span><span class="week-day-date" id="wdate-tuesday"></span></div>
+          <div class="week-day-items" id="witems-tuesday"></div>
+        </div>
+        <div class="week-day-col" id="wday-wednesday" data-day="wednesday" ondragover="wdayDragOver(event)" ondragleave="wdayDragLeave(event)" ondrop="wdayDrop(event)">
+          <div class="week-day-header"><span class="week-day-name">Wed</span><span class="week-day-date" id="wdate-wednesday"></span></div>
+          <div class="week-day-items" id="witems-wednesday"></div>
+        </div>
+        <div class="week-day-col" id="wday-thursday"  data-day="thursday"  ondragover="wdayDragOver(event)" ondragleave="wdayDragLeave(event)" ondrop="wdayDrop(event)">
+          <div class="week-day-header"><span class="week-day-name">Thu</span><span class="week-day-date" id="wdate-thursday"></span></div>
+          <div class="week-day-items" id="witems-thursday"></div>
+        </div>
+        <div class="week-day-col" id="wday-friday"    data-day="friday"    ondragover="wdayDragOver(event)" ondragleave="wdayDragLeave(event)" ondrop="wdayDrop(event)">
+          <div class="week-day-header"><span class="week-day-name">Fri</span><span class="week-day-date" id="wdate-friday"></span></div>
+          <div class="week-day-items" id="witems-friday"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-actions -->
+
+  <!-- ── Calendar page ── -->
+  <div class="page" id="page-calendar" style="display:none">
+    <div class="cal-year-label" id="cal-year-label">2026 — Year at a Glance</div>
+    <div class="cal-wrap">
+      <table class="cal-table" id="cal-table"></table>
+    </div>
+    <div class="cal-legend">
+      <div class="cal-legend-item"><div class="cal-legend-dot type-client"></div> Client</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot type-content"></div> Content</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot type-milestone"></div> Milestone</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot type-done"></div> Done</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot type-urgent"></div> Urgent</div>
+    </div>
+  </div><!-- /page-calendar -->
+
+  <!-- ── CRM page ── -->
+  <div class="page" id="page-crm" style="display:none">
+    <div class="kanban-card">
+      <div class="flex-between">
+        <div class="section-label" style="margin-bottom:0">Prospecting Pipeline — ops/sales</div>
+      </div>
+      <div class="crm-stats" id="crm-stats"></div>
+      <div class="crm-board" id="crm-board"></div>
+      <div id="crm-offline" class="kanban-offline-note" style="display:none">
+        To load the pipeline, run <code>python visual/server.py</code> then reload.
+      </div>
+      <div id="crm-empty" class="kanban-offline-note" style="display:none">
+        Pipeline is empty — run <code>/prospect</code> in Claude Code to generate a batch.
+      </div>
+    </div>
+  </div><!-- /page-crm -->
+
+</div>
+
+<script>
+  // Live date
+  const d = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('live-date').textContent =
+    `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+  // Copy command to clipboard
+  function copyCmd(cmd, el) {
+    navigator.clipboard.writeText(cmd).then(() => {
+      const hint = el.querySelector('.copy-hint');
+      hint.classList.add('show');
+      setTimeout(() => hint.classList.remove('show'), 1500);
+    });
+  }
+
+  // ── Tab switching ─────────────────────────
+  function showTab(name, evt) {
+    document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
+    const page = document.getElementById('page-' + name);
+    if (page) page.style.display = '';
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    if (evt && evt.target) evt.target.classList.add('active');
+  }
+
+  // ── Calendar data ─────────────────────────
+  const HARDCODED_DATES = new Set([
+    '2026-06-03','2026-06-05','2026-06-07','2026-08-31'
+  ]);
+  const EVENTS = {
+    '2026-06-03': [{ label: 'Growify S1', type: 'client' }],
+    '2026-06-05': [{ label: 'Jamie final', type: 'client' }],
+    '2026-06-07': [{ label: 'Skool call', type: 'client' }],
+    '2026-08-31': [{ label: 'Baby due', type: 'milestone' }],
+  };
+
+  // Merge localStorage events
+  const LS_KEY = 'cal-events-2026';
+  const COLOR_TYPES = {
+    client:    '#f97316',
+    content:   '#3b82f6',
+    milestone: '#eab308',
+    done:      '#22c55e',
+    urgent:    '#ef4444',
+  };
+  const COLOR_TYPE_NAMES = Object.keys(COLOR_TYPES);
+
+  // User events live on the server (visual/calendar-events.json);
+  // localStorage is an offline fallback + migration source for pre-server events.
+  let userEvents = {};
+
+  function lsLoad() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e) { return {}; }
+  }
+  function loadUserEvents() { return userEvents; }
+  function saveUserEvents(obj) {
+    userEvents = obj;
+    localStorage.setItem(LS_KEY, JSON.stringify(obj));
+    fetch('/api/calendar/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(obj),
+    }).catch(err => console.warn('Calendar server save failed (offline?)', err));
+  }
+  function mergeUserEvents() {
+    Object.entries(userEvents).forEach(([date, evs]) => {
+      if (!EVENTS[date]) EVENTS[date] = [];
+      evs.forEach(ev => EVENTS[date].push(ev));
+    });
+  }
+  // Synchronous first paint from localStorage; server data arrives just after.
+  userEvents = lsLoad();
+  mergeUserEvents();
+
+  async function initCalendarFromServer() {
+    let server;
+    try {
+      const res = await fetch('/api/calendar');
+      if (!res.ok) throw new Error('Non-OK');
+      server = await res.json();
+    } catch {
+      return; // offline — localStorage copy stays in charge
+    }
+    // Merge any browser-only events into the server copy (one-time migration)
+    let changed = false;
+    Object.entries(lsLoad()).forEach(([date, evs]) => {
+      if (!server[date]) server[date] = [];
+      evs.forEach(ev => {
+        if (!server[date].some(e => e.label === ev.label && e.type === ev.type)) {
+          server[date].push(ev);
+          changed = true;
+        }
+      });
+      if (!server[date].length) delete server[date];
+    });
+    userEvents = server;
+    localStorage.setItem(LS_KEY, JSON.stringify(server));
+    if (changed) saveUserEvents(server);
+    // Refresh every date that has (or had) dots
+    const allDates = new Set([...Object.keys(EVENTS), ...Object.keys(server)]);
+    allDates.forEach(dateStr => {
+      rebuildEventsForDate(dateStr);
+      refreshCellDots(dateStr);
+    });
+  }
+
+  // ── Popover ───────────────────────────────
+  const popover = document.createElement('div');
+  popover.id = 'cal-popover';
+  popover.innerHTML = `
+    <div class="pop-header">
+      <span class="pop-date" id="pop-date-label"></span>
+      <button class="pop-close" id="pop-close">✕</button>
+    </div>
+    <div class="pop-existing" id="pop-existing"></div>
+    <input class="pop-input" id="pop-label-input" type="text" placeholder="Add a label…" maxlength="40">
+    <div class="pop-swatches" id="pop-swatches"></div>
+    <button class="pop-save" id="pop-save">Save</button>
+  `;
+  document.body.appendChild(popover);
+
+  // Build swatches
+  let selectedType = COLOR_TYPE_NAMES[0];
+  const swatchesEl = document.getElementById('pop-swatches');
+  COLOR_TYPE_NAMES.forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = 'pop-swatch' + (type === selectedType ? ' selected' : '');
+    btn.style.background = COLOR_TYPES[type];
+    btn.title = type;
+    btn.dataset.type = type;
+    btn.addEventListener('click', () => {
+      selectedType = type;
+      swatchesEl.querySelectorAll('.pop-swatch').forEach(s => s.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    swatchesEl.appendChild(btn);
+  });
+
+  let currentPopDate = null;
+
+  function openPopover(dateStr, cellEl) {
+    currentPopDate = dateStr;
+
+    // Header date label
+    const [y,m,d2] = dateStr.split('-').map(Number);
+    const dateObj = new Date(y, m-1, d2);
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('pop-date-label').textContent = `${d2} ${monthNames[m-1]}`;
+
+    // Existing entries
+    const existEl = document.getElementById('pop-existing');
+    existEl.innerHTML = '';
+    const evs = EVENTS[dateStr] || [];
+    const userEvs = (loadUserEvents())[dateStr] || [];
+    if (evs.length) {
+      evs.forEach((ev, idx) => {
+        const isHardcoded = HARDCODED_DATES.has(dateStr) && idx < (evs.length - userEvs.length);
+        const row = document.createElement('div');
+        row.className = 'pop-existing-item';
+        const dotEl = document.createElement('div');
+        dotEl.className = 'pop-existing-dot';
+        dotEl.style.background = COLOR_TYPES[ev.type] || '#888';
+        if (ev.type === 'milestone') { dotEl.style.borderRadius = '1px'; dotEl.style.transform = 'rotate(45deg)'; }
+        const labelEl = document.createElement('span');
+        labelEl.className = 'pop-existing-label';
+        labelEl.textContent = ev.label;
+        row.appendChild(dotEl);
+        row.appendChild(labelEl);
+        if (isHardcoded) {
+          const ro = document.createElement('span');
+          ro.className = 'pop-existing-ro';
+          ro.textContent = 'fixed';
+          row.appendChild(ro);
+        } else {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'pop-delete-btn';
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            const userObj = loadUserEvents();
+            if (userObj[dateStr]) {
+              // find & remove this user event by label+type
+              const label = ev.label, type = ev.type;
+              const idx2 = userObj[dateStr].findIndex(e => e.label === label && e.type === type);
+              if (idx2 !== -1) userObj[dateStr].splice(idx2, 1);
+              if (!userObj[dateStr].length) delete userObj[dateStr];
+              saveUserEvents(userObj);
+            }
+            // Rebuild EVENTS entry from hardcoded + remaining user events
+            rebuildEventsForDate(dateStr);
+            refreshCellDots(dateStr);
+            openPopover(dateStr, cellEl);
+          });
+          row.appendChild(delBtn);
+        }
+        existEl.appendChild(row);
+      });
+    }
+
+    // Reset input
+    document.getElementById('pop-label-input').value = '';
+
+    // Position near the cell
+    const rect = cellEl.getBoundingClientRect();
+    const pop = popover;
+    pop.style.display = 'block';
+    const popW = 256, popH = 280;
+    let left = rect.left + window.scrollX;
+    let top = rect.bottom + window.scrollY + 6;
+    if (left + popW > window.innerWidth - 12) left = window.innerWidth - popW - 12;
+    if (top + popH > window.innerHeight + window.scrollY - 12) top = rect.top + window.scrollY - popH - 6;
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+  }
+
+  function closePopover() {
+    popover.style.display = 'none';
+    currentPopDate = null;
+  }
+
+  function rebuildEventsForDate(dateStr) {
+    // Start from hardcoded originals
+    const hardcoded = {
+      '2026-06-03': [{ label: 'Growify S1', type: 'client' }],
+      '2026-06-05': [{ label: 'Jamie final', type: 'client' }],
+      '2026-06-07': [{ label: 'Skool call', type: 'client' }],
+      '2026-08-31': [{ label: 'Baby due', type: 'milestone' }],
+    };
+    const userObj = loadUserEvents();
+    const base = (hardcoded[dateStr] || []).slice();
+    const userEvs = userObj[dateStr] || [];
+    EVENTS[dateStr] = base.concat(userEvs);
+    if (!EVENTS[dateStr].length) delete EVENTS[dateStr];
+  }
+
+  function refreshCellDots(dateStr) {
+    const cellInner = document.querySelector(`[data-date="${dateStr}"]`);
+    if (!cellInner) return;
+    let dotsEl = cellInner.querySelector('.cal-dots');
+    if (dotsEl) dotsEl.remove();
+    const evs = EVENTS[dateStr];
+    if (evs && evs.length) {
+      dotsEl = document.createElement('div');
+      dotsEl.className = 'cal-dots';
+      evs.forEach(ev => {
+        const dot = document.createElement('div');
+        dot.className = `cal-dot type-${ev.type}`;
+        dot.title = ev.label;
+        dotsEl.appendChild(dot);
+      });
+      cellInner.appendChild(dotsEl);
+    }
+  }
+
+  document.getElementById('pop-close').addEventListener('click', closePopover);
+  document.getElementById('pop-save').addEventListener('click', () => {
+    const label = document.getElementById('pop-label-input').value.trim();
+    if (!label || !currentPopDate) return;
+    const userObj = loadUserEvents();
+    if (!userObj[currentPopDate]) userObj[currentPopDate] = [];
+    userObj[currentPopDate].push({ label, type: selectedType });
+    saveUserEvents(userObj);
+    // Add to EVENTS
+    if (!EVENTS[currentPopDate]) EVENTS[currentPopDate] = [];
+    EVENTS[currentPopDate].push({ label, type: selectedType });
+    refreshCellDots(currentPopDate);
+    openPopover(currentPopDate, document.querySelector(`[data-date="${currentPopDate}"]`));
+  });
+
+  document.addEventListener('mousedown', e => {
+    if (popover.style.display === 'block' && !popover.contains(e.target)) {
+      closePopover();
+    }
+  });
+
+  // ── Build calendar ────────────────────────
+  (function buildCalendar() {
+    const YEAR = 2026;
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const DOW_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const MONTH_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const table = document.getElementById('cal-table');
+
+    // Header row — day numbers 1–31
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    // Month label header
+    const thMonth = document.createElement('td');
+    thMonth.className = 'col-month';
+    headRow.appendChild(thMonth);
+    for (let day = 1; day <= 31; day++) {
+      const th = document.createElement('td');
+      th.textContent = day;
+      headRow.appendChild(th);
+    }
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    // Body — one row per month
+    const tbody = document.createElement('tbody');
+    for (let m = 0; m < 12; m++) {
+      const row = document.createElement('tr');
+
+      // Month label cell
+      const tdLabel = document.createElement('td');
+      tdLabel.className = 'col-month';
+      tdLabel.innerHTML = `<span class="month-label">${MONTH_NAMES[m]}</span>`;
+      row.appendChild(tdLabel);
+
+      const daysInMonth = new Date(YEAR, m + 1, 0).getDate();
+
+      for (let day = 1; day <= 31; day++) {
+        const td = document.createElement('td');
+
+        if (day > daysInMonth) {
+          // Dead cell — this date doesn't exist
+          const inner = document.createElement('div');
+          inner.className = 'cal-cell cal-dead';
+          td.appendChild(inner);
+        } else {
+          const date = new Date(YEAR, m, day);
+          const dow = date.getDay(); // 0=Sun, 6=Sat
+          const isWeekend = dow === 0 || dow === 6;
+          const dateStr = `${YEAR}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const isToday = dateStr === todayStr;
+
+          const cell = document.createElement('div');
+          cell.className = 'cal-cell' +
+            (isToday ? ' cal-today' : isWeekend ? ' cal-weekend' : '');
+
+          const inner = document.createElement('div');
+          inner.className = 'cal-cell-inner';
+          inner.dataset.date = dateStr;
+          cell.addEventListener('click', () => openPopover(dateStr, inner));
+
+          const numEl = document.createElement('div');
+          numEl.className = 'cal-day-num';
+          numEl.textContent = day;
+          inner.appendChild(numEl);
+
+          const dowEl = document.createElement('div');
+          dowEl.className = 'cal-day-dow';
+          dowEl.textContent = DOW_SHORT[dow];
+          inner.appendChild(dowEl);
+
+          // Events / dots
+          const eventsForDay = EVENTS[dateStr];
+          if (eventsForDay && eventsForDay.length) {
+            const dotsEl = document.createElement('div');
+            dotsEl.className = 'cal-dots';
+            eventsForDay.forEach(ev => {
+              const dot = document.createElement('div');
+              dot.className = `cal-dot type-${ev.type}`;
+              dot.title = ev.label;
+              dotsEl.appendChild(dot);
+            });
+            inner.appendChild(dotsEl);
+          }
+
+          cell.appendChild(inner);
+          td.appendChild(cell);
+        }
+
+        row.appendChild(td);
+      }
+
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+  })();
+
+  initCalendarFromServer();
+
+  // ── Daily Focus ──────────────────────────
+  async function loadFocus() {
+    try {
+      const f = await fetch('/api/focus').then(r => { if (!r.ok) throw new Error(); return r.json(); });
+      document.getElementById('focus-offline').style.display = 'none';
+
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const now = new Date();
+      const dayName = days[now.getDay()];
+      const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('focus-day').textContent = `${dayName}, ${dateStr}`;
+      document.getElementById('focus-week-label').textContent = f.week_label || '';
+
+      // North Star
+      const nsEl = document.getElementById('focus-north-star');
+      if (f.north_star) {
+        nsEl.textContent = `"${f.north_star}"`;
+        nsEl.style.display = '';
+      }
+
+      // Today's planned tasks
+      const tasksEl = document.getElementById('focus-today-tasks');
+      if (f.today_tasks && f.today_tasks.length) {
+        tasksEl.innerHTML = '';
+        f.today_tasks.forEach(t => {
+          const row = document.createElement('div');
+          row.className = 'focus-task' + (t.done ? ' done-task' : '');
+          row.innerHTML = `<div class="focus-task-dot"></div><div class="focus-task-text">${t.text}</div>`;
+          tasksEl.appendChild(row);
+        });
+      } else {
+        tasksEl.innerHTML = '<div class="focus-empty">No plan file for today — run /weekly-review</div>';
+      }
+
+      // Doing actions
+      const doingEl = document.getElementById('focus-doing');
+      if (f.doing_actions && f.doing_actions.length) {
+        doingEl.innerHTML = '';
+        f.doing_actions.forEach(a => {
+          const row = document.createElement('div');
+          row.className = 'focus-task';
+          row.innerHTML = `<div class="focus-task-dot" style="background:var(--orange)"></div>
+            <div><div class="focus-task-text">${a.title}</div>${a.owner ? `<div class="focus-doing-tag">${a.owner}</div>` : ''}</div>`;
+          doingEl.appendChild(row);
+        });
+      } else {
+        doingEl.innerHTML = '<div class="focus-empty">Nothing in Doing</div>';
+      }
+
+      // Carry forward
+      const carryEl = document.getElementById('focus-carry');
+      if (f.carry_forward && f.carry_forward.length) {
+        carryEl.innerHTML = '';
+        f.carry_forward.forEach(c => {
+          const row = document.createElement('div');
+          row.className = 'focus-task';
+          row.innerHTML = `<div class="focus-task-dot" style="background:var(--yellow)"></div><div class="focus-task-text">${c}</div>`;
+          carryEl.appendChild(row);
+        });
+      } else {
+        carryEl.innerHTML = '<div class="focus-empty">Nothing carried forward</div>';
+      }
+
+    } catch {
+      document.getElementById('focus-day').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+      document.getElementById('focus-offline').style.display = '';
+      document.getElementById('focus-cols').style.display = 'none';
+    }
+  }
+  loadFocus();
+
+  // ── Kanban board ─────────────────────────
+  const KANBAN_API = 'http://localhost:8765/api/actions';
+  let kanbanDragFile = null;
+
+  function kanbanDueParts(dueStr) {
+    // Try to extract a YYYY-MM-DD from the due string
+    const m = dueStr && dueStr.match(/(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : null;
+  }
+
+  function renderKanban(actions) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cols = { backlog: [], doing: [], done: [], cancelled: [] };
+    actions.forEach(a => {
+      if (cols[a.column]) cols[a.column].push(a);
+    });
+
+    ['backlog', 'doing', 'done', 'cancelled'].forEach(col => {
+      const container = document.getElementById('items-' + col);
+      const countEl = document.getElementById('count-' + col);
+      container.innerHTML = '';
+      countEl.textContent = cols[col].length;
+
+      if (cols[col].length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'kanban-empty';
+        empty.textContent = 'Nothing here';
+        container.appendChild(empty);
+        return;
+      }
+
+      cols[col].forEach(action => {
+        const item = document.createElement('div');
+        item.className = 'kanban-item' + (col === 'cancelled' ? ' kanban-item-cancelled' : '');
+        item.draggable = true;
+        item.dataset.file = action.file;
+
+        const title = document.createElement('div');
+        title.className = 'kanban-item-title';
+        title.textContent = action.title;
+        item.appendChild(title);
+
+        const meta = document.createElement('div');
+        meta.className = 'kanban-item-meta';
+
+        if (action.owner) {
+          const owner = document.createElement('div');
+          owner.className = 'kanban-item-owner';
+          owner.textContent = action.owner;
+          meta.appendChild(owner);
+        }
+
+        if (action.due) {
+          const due = document.createElement('div');
+          due.className = 'kanban-item-due';
+          const isoDate = kanbanDueParts(action.due);
+          if (isoDate) {
+            const dueDate = new Date(isoDate + 'T00:00:00');
+            if (dueDate < today && col !== 'done') {
+              due.classList.add('overdue');
+              due.textContent = 'Overdue · ' + isoDate;
+            } else if (dueDate.getTime() === today.getTime()) {
+              due.classList.add('overdue');
+              due.textContent = 'Due today';
+            } else {
+              due.textContent = isoDate;
+            }
+          } else {
+            due.textContent = action.due;
+          }
+          meta.appendChild(due);
+        }
+
+        item.appendChild(meta);
+
+        item.addEventListener('dragstart', e => {
+          kanbanDragFile = action.file;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          kanbanDragFile = null;
+        });
+
+        container.appendChild(item);
+      });
+    });
+  }
+
+  function kanbanDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+  }
+  function kanbanDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+  async function kanbanDrop(e) {
+    e.preventDefault();
+    const col = e.currentTarget.dataset.col;
+    e.currentTarget.classList.remove('drag-over');
+    if (!kanbanDragFile || !col) return;
+    const file = kanbanDragFile;
+
+    // Optimistic update: reload from server; on failure show error
+    try {
+      const res = await fetch('/api/actions/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file, to: col }),
+      });
+      if (!res.ok) throw new Error('Move failed');
+      const actions = await fetch(KANBAN_API).then(r => r.json());
+      renderKanban(actions);
+    } catch (err) {
+      console.error('Kanban move failed, reloading from API', err);
+      loadKanban();
+    }
+  }
+
+  async function loadKanban() {
+    try {
+      const actions = await fetch(KANBAN_API).then(r => {
+        if (!r.ok) throw new Error('Non-OK');
+        return r.json();
+      });
+      document.getElementById('kanban-offline').style.display = 'none';
+      renderKanban(actions);
+      // Seed the version baseline so the poller doesn't re-render immediately
+      try {
+        const { version } = await fetch('/api/actions/version').then(r => r.json());
+        _lastKanbanVersion = version;
+      } catch { /* version endpoint not critical */ }
+    } catch {
+      document.getElementById('kanban-offline').style.display = '';
+      // Render empty columns so layout stays intact
+      renderKanban([]);
+    }
+  }
+
+  loadKanban();
+
+  // ── Live sync: poll version every 3s, re-render when folders change ──
+  let _lastKanbanVersion = null;
+  setInterval(async () => {
+    // Don't clobber a drag in progress
+    if (kanbanDragFile) return;
+    try {
+      const { version } = await fetch('/api/actions/version').then(r => r.json());
+      if (_lastKanbanVersion === null) {
+        _lastKanbanVersion = version;
+        return;
+      }
+      if (version !== _lastKanbanVersion) {
+        _lastKanbanVersion = version;
+        const actions = await fetch(KANBAN_API).then(r => r.json());
+        renderKanban(actions);
+      }
+    } catch {
+      // Server not running — polling silently fails; offline note already shown by loadKanban
+    }
+  }, 3000);
+
+  // ── Weekly planner ───────────────────────
+  const SCHEDULE_API = '/api/schedule';
+  const WEEKDAYS = ['monday','tuesday','wednesday','thursday','friday'];
+  let _schedule = { monday:[], tuesday:[], wednesday:[], thursday:[], friday:[], done:[] };
+  let _wdayDragFile = null;  // filename being dragged
+  let _wdayDragFrom = null;  // 'kanban' or a day name
+
+  // Populate day-date headers for the current week
+  (function initWeekHeaders() {
+    const today = new Date();
+    const dow = today.getDay(); // 0=Sun
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - ((dow + 6) % 7));
+    WEEKDAYS.forEach((day, i) => {
+      const d = new Date(mon);
+      d.setDate(mon.getDate() + i);
+      const el = document.getElementById('wdate-' + day);
+      if (el) el.textContent = d.getDate() + ' ' + d.toLocaleString('en-GB', { month: 'short' });
+      // Highlight today
+      const todayDow = (today.getDay() + 6) % 7; // 0=Mon
+      if (i === todayDow) {
+        const col = document.getElementById('wday-' + day);
+        if (col) col.classList.add('is-today');
+      }
+    });
+  })();
+
+  function renderWeekPlanner(actions) {
+    WEEKDAYS.forEach(day => {
+      const container = document.getElementById('witems-' + day);
+      container.innerHTML = '';
+      const files = _schedule[day] || [];
+      if (!files.length) {
+        const emp = document.createElement('div');
+        emp.className = 'week-day-empty';
+        emp.textContent = 'Drop tasks here';
+        container.appendChild(emp);
+        return;
+      }
+      files.forEach(file => {
+        const action = actions.find(a => a.file === file);
+        const title = action ? action.title : file.replace('.md','').replace(/-/g,' ');
+        const colTag = action ? action.column : '';
+
+        const isDone = (_schedule.done || []).includes(file);
+
+        const item = document.createElement('div');
+        item.className = 'week-task' + (isDone ? ' done' : '');
+        item.draggable = true;
+        item.dataset.file = file;
+        item.dataset.fromDay = day;
+
+        const check = document.createElement('div');
+        check.className = 'week-task-check' + (isDone ? ' checked' : '');
+        check.title = isDone ? 'Mark undone' : 'Mark done';
+        check.addEventListener('click', e => {
+          e.stopPropagation();
+          const done = _schedule.done || [];
+          if (done.includes(file)) {
+            _schedule.done = done.filter(f => f !== file);
+          } else {
+            _schedule.done = [...done, file];
+          }
+          saveSchedule();
+        });
+
+        const text = document.createElement('div');
+        text.innerHTML = `<div class="week-task-text">${title}</div>${colTag ? `<div class="week-task-col-tag${colTag==='doing'?' tag-doing':''}">${colTag}</div>` : ''}`;
+        text.style.flex = '1';
+
+        const remove = document.createElement('span');
+        remove.className = 'week-task-remove';
+        remove.textContent = '×';
+        remove.title = 'Remove from this week';
+        remove.addEventListener('click', e => {
+          e.stopPropagation();
+          _schedule[day] = _schedule[day].filter(f => f !== file);
+          _schedule.done = (_schedule.done || []).filter(f => f !== file);
+          saveSchedule();
+        });
+
+        item.appendChild(check);
+        item.appendChild(text);
+        item.appendChild(remove);
+
+        item.addEventListener('dragstart', e => {
+          _wdayDragFile = file;
+          _wdayDragFrom = day;
+          kanbanDragFile = null; // don't confuse kanban handler
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          _wdayDragFile = null;
+          _wdayDragFrom = null;
+        });
+
+        container.appendChild(item);
+      });
+    });
+  }
+
+  function wdayDragOver(e) {
+    if (!kanbanDragFile && !_wdayDragFile) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+  }
+  function wdayDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+  async function wdayDrop(e) {
+    e.preventDefault();
+    const targetDay = e.currentTarget.dataset.day;
+    e.currentTarget.classList.remove('drag-over');
+
+    const file = kanbanDragFile || _wdayDragFile;
+    if (!file || !targetDay) return;
+
+    // Remove from source day if dragging within planner
+    if (_wdayDragFrom && _wdayDragFrom !== targetDay) {
+      _schedule[_wdayDragFrom] = (_schedule[_wdayDragFrom] || []).filter(f => f !== file);
+    }
+
+    // Add to target day (deduplicate)
+    if (!_schedule[targetDay]) _schedule[targetDay] = [];
+    if (!_schedule[targetDay].includes(file)) {
+      _schedule[targetDay].push(file);
+    }
+
+    kanbanDragFile = null;
+    await saveSchedule();
+  }
+
+  async function saveSchedule() {
+    try {
+      await fetch('/api/schedule/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_schedule),
+      });
+      const actions = await fetch(KANBAN_API).then(r => r.json());
+      renderWeekPlanner(actions);
+    } catch (err) {
+      console.warn('Schedule save failed', err);
+    }
+  }
+
+  async function loadWeekPlanner() {
+    try {
+      const [sched, actions] = await Promise.all([
+        fetch(SCHEDULE_API).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
+        fetch(KANBAN_API).then(r => r.json()),
+      ]);
+      WEEKDAYS.forEach(d => { _schedule[d] = sched[d] || []; });
+      _schedule.done = Array.isArray(sched.done) ? sched.done : [];
+      renderWeekPlanner(actions);
+    } catch {
+      // server offline — render empty
+      WEEKDAYS.forEach(d => { _schedule[d] = []; });
+      _schedule.done = [];
+      const actions = [];
+      renderWeekPlanner(actions);
+    }
+  }
+  loadWeekPlanner();
+
+  async function planMyWeek() {
+    const btn = document.getElementById('plan-week-btn');
+    btn.textContent = 'Planning…';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    try {
+      const res = await fetch('/api/schedule/plan', { method: 'POST' });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Failed');
+      WEEKDAYS.forEach(d => { _schedule[d] = data.schedule[d] || []; });
+      _schedule.done = Array.isArray(data.schedule.done) ? data.schedule.done : (_schedule.done || []);
+      const actions = await fetch(KANBAN_API).then(r => r.json());
+      renderWeekPlanner(actions);
+      btn.textContent = 'Plan my week';
+    } catch (err) {
+      btn.textContent = 'Error — retry';
+      console.error('planMyWeek failed', err);
+    } finally {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  // Re-render planner when kanban reloads (keeps titles in sync)
+  const _origRenderKanban = renderKanban;
+  window._latestActions = [];
+  renderKanban = function(actions) {
+    window._latestActions = actions;
+    _origRenderKanban(actions);
+    renderWeekPlanner(actions);
+  };
+
+  // ── CRM pipeline board ───────────────────
+  const CRM_API = '/api/prospects';
+  const CRM_STAGES = [
+    { key: 'new',         label: 'New' },
+    { key: 'contacted',   label: 'Contacted' },
+    { key: 'replied',     label: 'Replied' },
+    { key: 'call-booked', label: 'Call Booked' },
+    { key: 'won',         label: 'Won' },
+    { key: 'dead',        label: 'Dead' },
+  ];
+  let crmDragFile = null;
+  let crmExpanded = new Set();
+
+  function crmChannelPill(channel) {
+    const c = (channel || '').toLowerCase();
+    if (c.includes('linkedin')) return ['pill-linkedin', 'LinkedIn'];
+    if (c.includes('call'))     return ['pill-call', 'Cold Call'];
+    if (c.includes('email'))    return ['pill-email', 'Email'];
+    return null;
+  }
+
+  function crmDaysSince(dateStr) {
+    if (!dateStr) return null;
+    const m = dateStr.match(/(\d{4}-\d{2}-\d{2})/);
+    if (!m) return null;
+    const then = new Date(m[1] + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    return Math.round((today - then) / 86400000);
+  }
+
+  function renderCrm(prospects) {
+    const board = document.getElementById('crm-board');
+    board.innerHTML = '';
+    document.getElementById('crm-empty').style.display = prospects.length ? 'none' : '';
+
+    // Stats line — channel split + avg fit, like the old ProspectAI header
+    const active = prospects.filter(p => p.status !== 'won' && p.status !== 'dead');
+    const li = prospects.filter(p => (p.channel || '').toLowerCase().includes('linkedin')).length;
+    const avgFit = prospects.length
+      ? (prospects.reduce((a, p) => a + (p.fit_score || 0), 0) / prospects.length).toFixed(1)
+      : '—';
+    document.getElementById('crm-stats').innerHTML = prospects.length
+      ? `<span><strong>${active.length}</strong> in pipeline</span>
+         <span>🔗 LinkedIn: <strong>${li}</strong> · Other: <strong>${prospects.length - li}</strong></span>
+         <span>⭐ Avg fit: <strong>${avgFit}</strong>/10</span>
+         <span>✅ Won: <strong>${prospects.filter(p => p.status === 'won').length}</strong></span>`
+      : '';
+
+    CRM_STAGES.forEach(stage => {
+      const items = prospects.filter(p => p.status === stage.key)
+        .sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0));
+
+      const col = document.createElement('div');
+      col.className = 'crm-col';
+      col.dataset.stage = stage.key;
+      col.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; col.classList.add('drag-over'); });
+      col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+      col.addEventListener('drop', e => crmDrop(e, stage.key, col));
+
+      const header = document.createElement('div');
+      header.className = 'kanban-col-header';
+      header.innerHTML = `<div class="crm-col-dot dot-${stage.key}"></div>
+        <div class="kanban-col-title">${stage.label}</div>
+        <div class="kanban-col-count">${items.length}</div>`;
+      col.appendChild(header);
+
+      if (!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'kanban-empty';
+        empty.textContent = '—';
+        col.appendChild(empty);
+      }
+
+      items.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'crm-item';
+        item.draggable = true;
+        item.dataset.file = p.file;
+
+        const company = document.createElement('div');
+        company.className = 'crm-item-company';
+        company.textContent = p.company;
+        item.appendChild(company);
+
+        const sub = document.createElement('div');
+        sub.className = 'crm-item-sub';
+        sub.textContent = [p.industry, p.location].filter(Boolean).join(' · ');
+        item.appendChild(sub);
+
+        const meta = document.createElement('div');
+        meta.className = 'crm-item-meta';
+        if (p.fit_score) {
+          const fit = document.createElement('span');
+          fit.className = 'crm-pill pill-fit' + (p.fit_score >= 8 ? ' hot' : '');
+          fit.textContent = 'Fit ' + p.fit_score;
+          meta.appendChild(fit);
+        }
+        const ch = crmChannelPill(p.channel);
+        if (ch) {
+          const pill = document.createElement('span');
+          pill.className = 'crm-pill ' + ch[0];
+          pill.textContent = ch[1];
+          meta.appendChild(pill);
+        }
+        // Stale flag: contacted but no touch in 5+ days
+        const days = crmDaysSince(p.last_touch);
+        if (stage.key === 'contacted' && days !== null && days >= 5) {
+          const stale = document.createElement('span');
+          stale.className = 'crm-pill pill-stale';
+          stale.textContent = days + 'd silent';
+          meta.appendChild(stale);
+        }
+        item.appendChild(meta);
+
+        if (crmExpanded.has(p.file)) {
+          const detail = document.createElement('div');
+          detail.className = 'crm-item-detail';
+          const parts = [];
+          if (p.ai_opportunity) parts.push(`<div class="crm-detail-label">AI Opportunity</div><div>${escapeHtml(p.ai_opportunity)}</div>`);
+          if (p.opening_line)   parts.push(`<div class="crm-detail-label">Opening Line</div><div class="crm-opening">"${escapeHtml(p.opening_line)}"</div>`);
+          if (p.next_action)    parts.push(`<div class="crm-detail-label">Next Action</div><div>${escapeHtml(p.next_action)}</div>`);
+          if (p.linkedin_search) parts.push(`<div class="crm-detail-label">LinkedIn Search</div><div>${escapeHtml(p.linkedin_search)}</div>`);
+          detail.innerHTML = parts.join('') || '<div>No details yet.</div>';
+          item.appendChild(detail);
+        }
+
+        item.addEventListener('click', () => {
+          if (crmExpanded.has(p.file)) crmExpanded.delete(p.file);
+          else crmExpanded.add(p.file);
+          renderCrm(_crmCache);
+        });
+        item.addEventListener('dragstart', e => {
+          crmDragFile = p.file;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          crmDragFile = null;
+        });
+
+        col.appendChild(item);
+      });
+
+      board.appendChild(col);
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  async function crmDrop(e, stage, col) {
+    e.preventDefault();
+    col.classList.remove('drag-over');
+    if (!crmDragFile) return;
+    const file = crmDragFile;
+    try {
+      const res = await fetch('/api/prospects/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file, to: stage }),
+      });
+      if (!res.ok) throw new Error('Move failed');
+    } catch (err) {
+      console.error('CRM move failed', err);
+    }
+    loadCrm();
+  }
+
+  let _crmCache = [];
+  async function loadCrm() {
+    try {
+      _crmCache = await fetch(CRM_API).then(r => {
+        if (!r.ok) throw new Error('Non-OK');
+        return r.json();
+      });
+      document.getElementById('crm-offline').style.display = 'none';
+      renderCrm(_crmCache);
+      try {
+        const { version } = await fetch('/api/prospects/version').then(r => r.json());
+        _lastCrmVersion = version;
+      } catch { /* not critical */ }
+    } catch {
+      document.getElementById('crm-offline').style.display = '';
+      renderCrm([]);
+    }
+  }
+
+  loadCrm();
+
+  let _lastCrmVersion = null;
+  setInterval(async () => {
+    if (crmDragFile) return;
+    try {
+      const { version } = await fetch('/api/prospects/version').then(r => r.json());
+      if (_lastCrmVersion === null) { _lastCrmVersion = version; return; }
+      if (version !== _lastCrmVersion) {
+        _lastCrmVersion = version;
+        loadCrm();
+      }
+    } catch { /* server offline */ }
+  }, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Koulen&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px;
+    height: 1350px;
+    background: #0875D4;
+    overflow: hidden;
+    font-family: 'Oswald', sans-serif;
+  }
+
+  .logo {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 24px;
+    opacity: 0.95;
+    z-index: 10;
+  }
+
+  .meta {
+    position: absolute;
+    top: 96px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 56px;
+    z-index: 5;
+  }
+  .meta-block { max-width: 46%; }
+  .meta-block.right { text-align: right; }
+  .meta-label {
+    font-family: 'Koulen';
+    font-size: 26px;
+    letter-spacing: 0.02em;
+    color: #FFFFFF;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .meta-value {
+    font-family: 'Oswald';
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.35;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .frame {
+    position: absolute;
+    top: 212px;
+    left: 56px;
+    right: 56px;
+    height: 818px;
+    border: 3px solid rgba(0,0,0,0.85);
+    border-radius: 2px;
+    overflow: hidden;
+    background: #0875D4;
+  }
+
+  .frame img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  .headline-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 6;
+    padding: 0 36px;
+  }
+
+  .headline {
+    font-family: 'Koulen';
+    color: #FFFFFF;
+    text-align: center;
+    line-height: 0.94;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .headline .the { font-size: 74px; display: block; }
+  .headline .art  { font-size: 168px; display: block; }
+  .headline .of   { font-size: 74px; display: block; }
+  .headline .being{ font-size: 168px; display: block; }
+
+  .workshop {
+    position: absolute;
+    bottom: 46px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 7;
+  }
+  .workshop span {
+    font-family: 'Koulen';
+    font-size: 92px;
+    color: #FFFFFF;
+    letter-spacing: 0.02em;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 44px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 5;
+  }
+  .footer-label {
+    font-family: 'Oswald';
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+</style>
+</head>
+<body>
+
+  <div class="meta">
+    <div class="meta-block">
+      <div class="meta-label">TIME:</div>
+      <div class="meta-value">Sunday 5th July<br>10AM&ndash;1PM (Online)</div>
+    </div>
+    <div class="meta-block right">
+      <div class="meta-label">LOCATION:</div>
+      <div class="meta-value">Online &mdash; link in the<br>Reality Architects Skool<br>community</div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <img src="knight image.webp" alt="Knight in armor among clouds">
+  </div>
+
+  <div class="headline-wrap">
+    <div class="headline">
+      <span class="the">THE</span>
+      <span class="art">ART</span>
+      <span class="of">OF</span>
+      <span class="being">BEING.</span>
+    </div>
+  </div>
+
+  <div class="workshop"><span>WORKSHOP</span></div>
+
+  <div class="footer">
+    <div class="footer-label">Reality Architects &middot; Free Community Workshop</div>
+  </div>
+
+  <img class="logo" src="file:///Users/DoAnythingNow./Desktop/Context 2.0/ops/content/DANlogo.png">
+
+</body>
+</html>

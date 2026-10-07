@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>May 2026 — Month in Review</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d0d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    padding: 40px 20px;
+  }
+
+  .card {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 20px;
+    width: 680px;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #f97316, #fb923c, #fdba74);
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+  }
+
+  .month-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #f97316;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #555;
+    margin-top: 6px;
+  }
+
+  .badge {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-align: center;
+  }
+
+  .badge-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #444;
+    margin-bottom: 4px;
+  }
+
+  .badge-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f97316;
+  }
+
+  /* Revenue row */
+  .revenue-row {
+    background: #1a1a1a;
+    border: 1px solid #222;
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .revenue-item {
+    text-align: center;
+    flex: 1;
+  }
+
+  .revenue-label {
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .revenue-number {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .revenue-number.highlight {
+    color: #f97316;
+  }
+
+  .arrow {
+    font-size: 22px;
+    color: #333;
+    flex-shrink: 0;
+  }
+
+  .growth-pill {
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #444;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  /* Wins */
+  .wins-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .win-item {
+    background: #1a1a1a;
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .win-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f97316;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .win-text {
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.4;
+  }
+
+  .win-text strong {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* Lesson */
+  .lesson-box {
+    border-left: 3px solid #f97316;
+    padding: 18px 20px;
+    background: #171717;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 28px;
+  }
+
+  .lesson-text {
+    font-size: 14px;
+    color: #bbb;
+    line-height: 1.6;
+  }
+
+  .lesson-text em {
+    color: #fff;
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* June target */
+  .june-target {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 32px;
+  }
+
+  .june-label {
+    font-size: 12px;
+    color: #555;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .june-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .june-desc {
+    font-size: 12px;
+    color: #444;
+    text-align: right;
+    line-height: 1.4;
+    max-width: 200px;
+  }
+
+  /* Footer */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #1e1e1e;
+    padding-top: 20px;
+  }
+
+  .handle {
+    font-size: 13px;
+    color: #f97316;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-note {
+    font-size: 11px;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="header">
+    <div>
+      <div class="month-label">Month in Review</div>
+      <div class="title">May 2026</div>
+      <div class="subtitle">Building toward £5k/month before baby arrives</div>
+    </div>
+    <div class="badge">
+      <div class="badge-label">Month</div>
+      <div class="badge-value">02</div>
+    </div>
+  </div>
+
+  <!-- Revenue -->
+  <div class="revenue-row">
+    <div class="revenue-item">
+      <div class="revenue-label">April</div>
+      <div class="revenue-number">£400</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="revenue-item">
+      <div class="revenue-label">May</div>
+      <div class="revenue-number highlight">£1,230</div>
+    </div>
+    <div class="growth-pill">3× growth</div>
+  </div>
+
+  <!-- Wins -->
+  <div class="section-label">Wins</div>
+  <div class="wins-grid">
+    <div class="win-item">
+      <div class="win-dot"></div>
+      <div class="win-text"><strong>Skool live</strong> — full community, free + 1:1 upsell funnel</div>
+    </div>
+    <div class="win-item">
+      <div class="win-dot"></div>
+      <div class="win-text"><strong>Growify signed</strong> — first ontology/AI client, 6 sessions locked</div>
+    </div>
+    <div class="win-item">
+      <div class="win-dot"></div>
+      <div class="win-text"><strong>New web dev client</strong> — converted from cold call</div>
+    </div>
+    <div class="win-item">
+      <div class="win-dot"></div>
+      <div class="win-text"><strong>Website live</strong> — personal ontology built and deployed</div>
+    </div>
+    <div class="win-item">
+      <div class="win-dot"></div>
+      <div class="win-text"><strong>Jamie deal closed</strong> — company AI session thread opened</div>
+    </div>
+    <div class="win-item">
+      <div class="win-dot"></div>
+      <div class="win-text"><strong>Content engine running</strong> — reels Mon–Fri, LinkedIn consistent</div>
+    </div>
+  </div>
+
+  <!-- Lesson -->
+  <div class="section-label">Key lesson</div>
+  <div class="lesson-box">
+    <div class="lesson-text">
+      The friction wasn't motivation. It was the <em>decision cost</em> of "who do I contact today?"
+      A pre-built outreach list removes that entirely — execution becomes opening a tab and sending a message.
+      Cold pipeline is the only thing that converts infrastructure into income.
+    </div>
+  </div>
+
+  <!-- June target -->
+  <div class="june-target">
+    <div>
+      <div class="june-label">June target</div>
+      <div class="june-value">£4,000 – 5,000</div>
+    </div>
+    <div class="june-desc">Deliver Growify · Close Jamie's company · Outreach engine live</div>
+  </div>
+
+  <div class="footer">
+    <div class="handle">@danchukwuka</div>
+    <div class="footer-note">Building in public · Context 2.0</div>
+  </div>
+
+</div>
+</body>
+</html>

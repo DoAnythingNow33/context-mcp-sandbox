@@ -1,0 +1,26 @@
+{
+  "2026-08-23": [
+    {
+      "label": "BABY DUE",
+      "type": "urgent"
+    }
+  ],
+  "2026-07-24": [
+    {
+      "label": "Baby Shower",
+      "type": "urgent"
+    }
+  ],
+  "2026-07-05": [
+    {
+      "label": "Next Skool Call 4pm",
+      "type": "milestone"
+    }
+  ],
+  "2026-06-15": [
+    {
+      "label": "COLD OUTREACH BUILD PIPELINE",
+      "type": "urgent"
+    }
+  ]
+}

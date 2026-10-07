@@ -1,0 +1,14 @@
+[Unit]
+Description=Token Sniper Bot (Discord alerts)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/hermes/token-sniper
+ExecStart=/home/hermes/token-sniper/venv/bin/python /home/hermes/token-sniper/main.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

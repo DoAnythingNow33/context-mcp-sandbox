@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "**/.claude": true,
+    "**/.obsidian": true,
+    "**/.tmp.driveupload": true,
+    "**/.vscode": true,
+    "**/.env": true
+  }
+}

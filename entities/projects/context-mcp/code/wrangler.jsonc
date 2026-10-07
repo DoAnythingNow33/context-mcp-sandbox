@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "context-mcp",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true }
+  // Secrets/vars: TENANTS, GITHUB_TOKEN (Phase 3 only), DEV_AUTH (local only, never deployed).
+  // Locally they come from .dev.vars (gitignored); see .dev.vars.example.
+}

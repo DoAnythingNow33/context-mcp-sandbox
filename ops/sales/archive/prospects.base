@@ -1,0 +1,109 @@
+filters:
+  and:
+    - file.inFolder("ops/sales/prospects")
+    - type == "prospect"
+formulas:
+  days_since_touch: if(last_touch, (today() - date(last_touch)).days, "")
+  days_in_pipeline: if(added, (today() - date(added)).days, "")
+  fit_label: if(fit_score >= 8, "🔥 " + fit_score.toString(), if(fit_score >= 6, "👍 " + fit_score.toString(), fit_score.toString()))
+  status_icon: if(status == "new", "🆕", if(status == "contacted", "📤", if(status == "replied", "💬", if(status == "call-booked", "📅", if(status == "won", "✅", "💀")))))
+properties:
+  company:
+    displayName: Company
+  industry:
+    displayName: Industry
+  channel:
+    displayName: Channel
+  source:
+    displayName: Source
+  email:
+    displayName: Email
+  status:
+    displayName: Status
+  next_action:
+    displayName: Next Action
+  formula.fit_label:
+    displayName: Fit
+  formula.days_since_touch:
+    displayName: Days Since Touch
+  formula.days_in_pipeline:
+    displayName: Days in Pipeline
+views:
+  - type: table
+    name: Pipeline
+    filters:
+      and:
+        - status != "won"
+        - status != "dead"
+    groupBy:
+      property: status
+      direction: ASC
+    order:
+      - formula.status_icon
+      - company
+      - industry
+      - channel
+      - formula.fit_label
+      - next_action
+      - formula.days_since_touch
+      - email
+      - source
+      - status
+    sort: []
+    summaries:
+      formula.fit_label: Filled
+  - type: table
+    name: To Contact
+    filters:
+      and:
+        - status == "new"
+    order:
+      - company
+      - industry
+      - location
+      - channel
+      - formula.fit_label
+      - source
+      - email
+  - type: table
+    name: Awaiting Reply
+    filters:
+      and:
+        - status == "contacted"
+    order:
+      - company
+      - channel
+      - last_touch
+      - formula.days_since_touch
+      - next_action
+  - type: table
+    name: Live Conversations
+    filters:
+      or:
+        - status == "replied"
+        - status == "call-booked"
+    order:
+      - company
+      - status
+      - last_touch
+      - next_action
+      - formula.fit_label
+  - type: table
+    name: Won
+    filters:
+      and:
+        - status == "won"
+    order:
+      - company
+      - industry
+      - added
+      - formula.days_in_pipeline
+  - type: table
+    name: Dead
+    filters:
+      and:
+        - status == "dead"
+    order:
+      - company
+      - industry
+      - last_touch

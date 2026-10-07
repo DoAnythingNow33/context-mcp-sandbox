@@ -1,0 +1,31 @@
+filters:
+  and:
+    - file.inFolder("IP")
+    - type != "ip-index"
+    - file.basename != "_template"
+properties:
+  file.name:
+    displayName: Concept
+  type:
+    displayName: Type
+  tags:
+    displayName: Tags
+  content_made:
+    displayName: Content Made
+  content_formats:
+    displayName: Formats
+  content_pieces:
+    displayName: Pieces
+  first_seen:
+    displayName: First Seen
+views:
+  - type: table
+    name: IP Library
+    order:
+      - file.name
+      - type
+      - tags
+      - content_made
+      - content_formats
+      - content_pieces
+      - first_seen
