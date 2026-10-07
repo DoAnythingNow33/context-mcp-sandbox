@@ -8,3 +8,6 @@ line 3
 
 <!-- added by Dan via context-mcp, 2026-10-07: race test -->
 line 1
+
+<!-- added by Dan via context-mcp, 2026-10-07: race test -->
+line 2
